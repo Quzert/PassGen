@@ -36,7 +36,7 @@ public:
                         crypto_pwhash_ALG_ARGON2ID13) != 0){
                 throw runtime_error("Ошибка");
             } 
-        return toAlphabet(hash, alphabet);
+        return toAlphabet(hash, alphabet, len);
     }    
 private:
     uint64_t bytesToNumber(const vector<unsigned char>& data) const {
@@ -47,17 +47,19 @@ private:
     return value;
 }
 
-    string toAlphabet(const vector<unsigned char>& data, const string& alphabet) const {
-        string result = ""; 
-        uint64_t hash = bytesToNumber(data);
-        while (hash != 0){
-            result += alphabet[hash % alphabet.size()];
-            hash /= alphabet.size();
+    string toAlphabet(const vector<unsigned char>& data, const string& alphabet, size_t len) const {
+        if (alphabet.empty()) {
+            throw runtime_error("Алфавит не может быть пустым");
         }
-        if (result.empty() && !alphabet.empty()) {
-            result += alphabet[0];
+
+        string result;
+        result.reserve(len);
+
+        for (size_t i = 0; i < len; ++i) {
+            unsigned char b = data[i % data.size()];
+            result += alphabet[b % alphabet.size()];
         }
-        reverse(result.begin(), result.end());
+
         return result;
     }
 
