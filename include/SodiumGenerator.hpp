@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <sstream>
 #include <algorithm>
+#include <cctype>
 #include <cmath>
 
 using namespace std;
@@ -13,9 +14,9 @@ class SodiumGenerator : public PasswordGenerator{
 public:
     string generate(const string& masterPass, 
                     const string& site, 
-                    size_t len = 16,
-                    string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+[]{};:,.<>?/"                
-                ) const override{
+                    size_t len,
+                    const string& alphabet,
+                    bool requireSpecial) const override{
         
         // Используем site как соль для Argon2
         unsigned char salt[crypto_pwhash_SALTBYTES];
@@ -36,7 +37,7 @@ public:
                         crypto_pwhash_ALG_ARGON2ID13) != 0){
                 throw runtime_error("Ошибка");
             } 
-        return toAlphabet(hash, alphabet, len);
+        return toAlphabet(hash, alphabet, len, requireSpecial);
     }    
 private:
     uint64_t bytesToNumber(const vector<unsigned char>& data) const {
@@ -47,7 +48,7 @@ private:
     return value;
 }
 
-    string toAlphabet(const vector<unsigned char>& data, const string& alphabet, size_t len) const {
+    string toAlphabet(const vector<unsigned char>& data, const string& alphabet, size_t len, bool requireSpecial) const {
         if (alphabet.empty()) {
             throw runtime_error("Алфавит не может быть пустым");
         }
@@ -59,6 +60,25 @@ private:
             unsigned char b = data[i % data.size()];
             result += alphabet[b % alphabet.size()];
         }
+
+        // Проверить наличие спецсимвола
+        if (!requireSpecial) return result;
+
+        auto isSpecialChar = [](char c){ return !isalnum(static_cast<unsigned char>(c)); };
+        for (char c : result) if (isSpecialChar(c)) return result;
+
+        // Список индексов спецсимволов в alphabet
+        vector<size_t> specialIndexes;
+        for (size_t i = 0; i < alphabet.size(); ++i) {
+            if (isSpecialChar(alphabet[i])) specialIndexes.push_back(i);
+        }
+        if (specialIndexes.empty()) {
+            throw runtime_error("Требуется спецсимвол, но алфавит не содержит спецсимволов");
+        }
+
+        size_t pos = static_cast<size_t>(data[0]) % len;
+        size_t sidx = static_cast<size_t>(data[0]) % specialIndexes.size();
+        result[pos] = alphabet[specialIndexes[sidx]];
 
         return result;
     }

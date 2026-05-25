@@ -13,11 +13,22 @@ int main(int argc, char* argv[]) {
 
     string master = argv[1];
     string site = argv[2];
-    size_t length = (argc >= 4) ? stoul(argv[3]) : 16;
+
+    // Обработка необязательных аргументов
+    size_t length = PasswordGenerator::DEFAULT_LEN;
+    bool requireSpecial = false;
+    for (int i = 3; i < argc; ++i) {
+        string a = argv[i];
+        if (a == "--require-special" || a == "-s") {
+            requireSpecial = true;
+        } else if(a == "-l") {
+            length = stoul(argv[++i]);
+        }
+    }
 
     try {
         unique_ptr<PasswordGenerator> generator = make_unique<SodiumGenerator>();
-        string password = generator->generate(master, site, length);
+        string password = generator->generate(master, site, length, PasswordGenerator::DEFAULT_ALPHABET, requireSpecial);
 
             cout << "Сгенерированный пароль для " << site << ":" << endl;
         cout << password << endl;
