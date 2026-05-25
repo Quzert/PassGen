@@ -14,7 +14,7 @@ add_executable(passgen
 )
 
 target_include_directories(passgen PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/incluse
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${SODIUM_INCLUDE_DIRS}
 )
 
