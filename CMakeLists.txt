@@ -21,3 +21,20 @@ target_include_directories(passgen PRIVATE
 target_link_directories(passgen PRIVATE ${SODIUM_LIBRARY_DIRS})
 target_link_libraries(passgen PRIVATE ${SODIUM_LIBRARIES})
 target_compile_options(passgen PRIVATE ${SODIUM_CFLAGS_OTHER})
+
+# Определение пути к алфавитам при установке
+set(PASSGEN_ALPHABETS_DIR ${CMAKE_INSTALL_PREFIX}/share/passgen/alphabets)
+target_compile_definitions(passgen PRIVATE
+    PASSGEN_ALPHABETS_DIR="${PASSGEN_ALPHABETS_DIR}"
+)
+
+# Установка исполняемого файла
+install(TARGETS passgen
+    RUNTIME DESTINATION bin
+)
+
+# Установка файлов алфавитов
+install(DIRECTORY alphabet/
+    DESTINATION share/passgen/alphabets
+    FILES_MATCHING PATTERN "*.txt"
+)

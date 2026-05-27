@@ -8,6 +8,11 @@
 #include <algorithm>
 
 using namespace std;
+
+// Макрос для пути к алфавитам, устанавливается при компиляции
+#ifndef PASSGEN_ALPHABETS_DIR
+#define PASSGEN_ALPHABETS_DIR "./alphabet"
+#endif
 namespace fs = std::filesystem;
 
 static void printUsage(ostream& out, const char* argv0) {
@@ -52,12 +57,11 @@ static vector<string> listAlphabetPresets(const fs::path &dir) {
     return names;
 }
 
-static string resolveAlphabetOption(const string &opt) {
+static string resolveAlphabetOption(const string &opt, const fs::path &presetsDir) {
     // Проверка является ли файлом
     fs::path file(opt);
     if (fs::exists(file) && fs::is_regular_file(file)) return readAlphabetFile(file);
     // Проверка является ли пресетом
-    fs::path presetsDir = fs::current_path() / "alphabet";
     fs::path presetFile = presetsDir / (opt + ".txt");
     if (fs::exists(presetFile) && fs::is_regular_file(presetFile)) return readAlphabetFile(presetFile);
     // Удаление лишних пробелов слева и справа
@@ -69,10 +73,11 @@ static string resolveAlphabetOption(const string &opt) {
 }
 
 int main(int argc, char* argv[]) {
+    // Определение директории с пресетами
+    fs::path presetsDir(PASSGEN_ALPHABETS_DIR);
 
     for (int i = 1; i < argc; ++i) {
         if (string(argv[i]) == "--list-alphabets" || string(argv[i]) == "--list") {
-            fs::path presetsDir = fs::current_path() / "alphabet";
             auto list = listAlphabetPresets(presetsDir);
             cout << "Доступные пресеты:" << endl;
             for (auto &n : list) cout << "  " << n << endl;
@@ -115,7 +120,6 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    fs::path presetsDir = fs::current_path() / "alphabet";
     if (listAlphabets) {
         auto list = listAlphabetPresets(presetsDir);
         cout << "Доступные пресеты:" << endl;
@@ -126,11 +130,11 @@ int main(int argc, char* argv[]) {
     string alphabet;
     try {
         if (!filePathOption.empty()) {
-            alphabet = resolveAlphabetOption(filePathOption);
+            alphabet = resolveAlphabetOption(filePathOption, presetsDir);
         } else if (!presetName.empty()) {
-            alphabet = resolveAlphabetOption(presetName);
+            alphabet = resolveAlphabetOption(presetName, presetsDir);
         } else if (!literalAlphabet.empty()) {
-            alphabet = resolveAlphabetOption(literalAlphabet);
+            alphabet = resolveAlphabetOption(literalAlphabet, presetsDir);
         } else {
             alphabet = PasswordGenerator::DEFAULT_ALPHABET;
         }
