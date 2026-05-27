@@ -1,7 +1,0 @@
-/home/artem/UPG/build-package/CMakeFiles/passgen.dir
-/home/artem/UPG/build-package/CMakeFiles/edit_cache.dir
-/home/artem/UPG/build-package/CMakeFiles/rebuild_cache.dir
-/home/artem/UPG/build-package/CMakeFiles/list_install_components.dir
-/home/artem/UPG/build-package/CMakeFiles/install.dir
-/home/artem/UPG/build-package/CMakeFiles/install/local.dir
-/home/artem/UPG/build-package/CMakeFiles/install/strip.dir
