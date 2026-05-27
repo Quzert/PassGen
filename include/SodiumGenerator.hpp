@@ -107,20 +107,6 @@ private:
 
         return result;
     }
-
-    // Преобразует байты в строку подходящую для пароля
-    string toBase64(const vector<unsigned char>& data) const {
-        size_t b64_len = sodium_base64_ENCODED_LEN(data.size(), 
-                                        sodium_base64_VARIANT_ORIGINAL_NO_PADDING);
-
-        vector<char> b64(b64_len);
-        
-        sodium_bin2base64(b64.data(), b64.size(), 
-                          data.data(), data.size(), 
-                          sodium_base64_VARIANT_ORIGINAL_NO_PADDING);
-        
-        return string(b64.data());
-    }
 };
     
     
