@@ -1,6 +1,0 @@
-/usr/local/bin/passgen
-/usr/local/share/passgen/alphabets/lowercase.txt
-/usr/local/share/passgen/alphabets/lowercase-digits.txt
-/usr/local/share/passgen/alphabets/no-special.txt
-/usr/local/share/passgen/alphabets/default.txt
-/usr/local/share/passgen/alphabets/digits.txt
