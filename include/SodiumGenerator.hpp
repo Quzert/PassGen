@@ -17,13 +17,35 @@ public:
                     size_t len,
                     const string& alphabet,
                     bool requireSpecial) const override{
-        
+        if (len == 0) {
+            throw runtime_error("Длина пароля должна быть больше нуля");
+        }
+        if (alphabet.size() < 2) {
+            throw runtime_error("Алфавит должен содержать как минимум 2 символа");
+        }
+
+        static const bool sodiumReady = []() {
+            return sodium_init() >= 0;
+        }();
+        if (!sodiumReady) {
+            throw runtime_error("Не удалось инициализировать libsodium");
+        }
+
+        if (requireSpecial) {
+            auto isSpecialChar = [](char c){ return !isalnum(static_cast<unsigned char>(c)); };
+            bool hasSpecial = any_of(alphabet.begin(), alphabet.end(), isSpecialChar);
+            if (!hasSpecial) {
+                throw runtime_error("Требуется спецсимвол, но алфавит не содержит спецсимволов");
+            }
+        }
+
         // Используем site как соль для Argon2
         unsigned char salt[crypto_pwhash_SALTBYTES];
-        
-        crypto_generichash(salt, sizeof(salt), 
+        if (crypto_generichash(salt, sizeof(salt), 
                         reinterpret_cast<const unsigned char*>(site.data()), 
-                        site.size(), nullptr, 0);
+                        site.size(), nullptr, 0) != 0) {
+            throw runtime_error("Не удалось вычислить соль");
+        }
         
         size_t hashSize = static_cast<size_t>(ceil((static_cast<double>(len) * log2(alphabet.size())) / 8.0));
         hashSize = max<size_t>(crypto_pwhash_BYTES_MIN, hashSize);
@@ -51,6 +73,9 @@ private:
     string toAlphabet(const vector<unsigned char>& data, const string& alphabet, size_t len, bool requireSpecial) const {
         if (alphabet.empty()) {
             throw runtime_error("Алфавит не может быть пустым");
+        }
+        if (len == 0) {
+            throw runtime_error("Длина пароля должна быть больше нуля");
         }
 
         string result;

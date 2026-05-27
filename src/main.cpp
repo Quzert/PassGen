@@ -10,6 +10,17 @@
 using namespace std;
 namespace fs = std::filesystem;
 
+static void printUsage(ostream& out, const char* argv0) {
+    out << "Использование: " << argv0 << " <мастер_пароль> <название_сайта> [опции]" << endl;
+    out << "Опции:" << endl;
+    out << "  -l,     --length <длина>          Длина пароля (по умолчанию: " << PasswordGenerator::DEFAULT_LEN << ")" << endl;
+    out << "  -s,     --require-special         Требовать спецсимвол" << endl;
+    out << "  -A,     --preset <name>           Использовать preset из alphabet/<name>.txt" << endl;
+    out << "  -f,     --file <path>             Загрузить алфавит из файла" << endl;
+    out << "  -a,     --alphabet <string>       Использовать буквенный набор напрямую" << endl;
+    out << "  --list, --list-alphabets          Показать доступные presets в папке alphabet/" << endl;
+}
+
 static string readAlphabetFile(const fs::path &file) {
 
     // Чтение файла
@@ -67,27 +78,13 @@ int main(int argc, char* argv[]) {
             for (auto &n : list) cout << "  " << n << endl;
             return 0;
         } else if (string(argv[i]) == "--help"){
-            cout << "Использование: " << argv[0] << " <мастер_пароль> <название_сайта> [опции]" << endl;
-            cout << "Опции:" << endl;
-            cout << "  -l,     --length <длина>          Длина пароля (по умолчанию: " << PasswordGenerator::DEFAULT_LEN << ")" << endl;
-            cout << "  -s,     --require-special         Требовать спецсимвол" << endl;
-            cout << "  -A,     --preset <name>           Использовать preset из alphabet/<name>.txt" << endl;
-            cout << "  -f,     --file <path>             Загрузить алфавит из файла" << endl;
-            cout << "  -a,     --alphabet <string>       Использовать буквенный набор напрямую" << endl;
-            cout << "  --list, --list-alphabets          Показать доступные presets в папке alphabet/" << endl;
-            return 1;            
+            printUsage(cout, argv[0]);
+            return 0;
         }
     }
 
     if (argc < 3) {
-        cerr << "Использование: " << argv[0] << " <мастер_пароль> <название_сайта> [опции]" << endl;
-        cerr << "Опции:" << endl;
-        cerr << "  -l,     --length <длина>          Длина пароля (по умолчанию: " << PasswordGenerator::DEFAULT_LEN << ")" << endl;
-        cerr << "  -s,     --require-special         Требовать спецсимвол" << endl;
-        cerr << "  -A,     --preset <name>           Использовать preset из alphabet/<name>.txt" << endl;
-        cerr << "  -f,     --file <path>             Загрузить алфавит из файла" << endl;
-        cerr << "  -a,     --alphabet <string>       Использовать буквенный набор напрямую" << endl;
-        cerr << "  --list, --list-alphabets          Показать доступные presets в папке alphabet/" << endl;
+        printUsage(cerr, argv[0]);
         return 1;
     }
 
